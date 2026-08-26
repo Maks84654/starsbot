@@ -113,12 +113,16 @@ def get_accounts_menu():
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
 
-# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО (БЕЗ УДАЛЕНИЙ) ---
+# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО (БЕЗОПАСНАЯ) ---
 async def edit_or_send_photo(callback: types.CallbackQuery, photo_source: str, caption: str, reply_markup: InlineKeyboardMarkup, parse_mode: str = "HTML"):
     try:
         media = InputMediaPhoto(media=FSInputFile(photo_source), caption=caption, parse_mode=parse_mode)
         await callback.message.edit_media(media=media, reply_markup=reply_markup)
     except Exception:
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
         try:
             await callback.message.answer_photo(photo=FSInputFile(photo_source), caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
         except Exception:
@@ -214,7 +218,6 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
         [InlineKeyboardButton(text="📞 Написать менеджеру", url="https://t.me/StarsManagerr")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ]
-    # ПРАВИЛЬНАЯ КАРТИНКА ДЛЯ РЕФЕРАЛОВ: image13.jfif
     await edit_or_send_photo(callback, "image13.jfif", ref_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data == "faq")
@@ -390,7 +393,6 @@ async def show_profile(callback: types.CallbackQuery, state: FSMContext):
     back_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    # ПРАВИЛЬНАЯ КАРТИНКА ДЛЯ ПРОФИЛЯ: image9.jfif
     await edit_or_send_photo(callback, "image9.jfif", profile_text, back_kb, parse_mode="HTML")
 
 # --- ОСНОВНОЙ ЗАПУСК (БОТ + ВЕБ-СЕРВЕР) ---

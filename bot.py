@@ -5,12 +5,12 @@ from datetime import datetime
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile, InputMediaPhoto
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-# --- ВЕБ-СЕРВЕР ДЛЯ RENDER ---
+# --- ВЕБ-СЕРВЕР ДЛЯ RENDER (ЧТОБЫ НЕ ПАДАЛ ПО ПОРТУ) ---
 async def handle(request):
     return web.Response(text="I'm alive!")
 
@@ -27,14 +27,6 @@ API_TOKEN = "8615635837:AAEGq_qwyjMRNhbp8LVORJHgxL5vclAg6jg"
 MANAGER_USERNAME = "@StarsManagerr"
 BOT_USERNAME = "StarsBiest_bot"
 
-# --- ПРИВЯЗКА КАРТИНОК ИЗ ТВОЕЙ ПАПКИ ---
-IMG_MAIN = "image19.jfif"       # Главная / Приветствие
-IMG_PROFILE = "image13.jfif"    # Профиль
-IMG_CATALOG = "image14.jfif"    # Каталог / Оформление
-IMG_REFERRAL = "image18.jfif"   # Реферальная система
-IMG_GUARANTEES = "image14.jfif" # Гарантии
-IMG_HELP = "image19.jfif"       # Помощь / FAQ
-
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
@@ -46,7 +38,7 @@ class OrderState(StatesGroup):
 
 # --- ТЕКСТЫ И ИНСТРУКЦИИ ---
 WELCOME_TEXT = (
-    "✨ Добро пожаловать в StarsBiest! ✨\n\n"
+    "✨ <b>Добро пожаловать в StarsBiest!</b> ✨\n\n"
     "Бот, в котором ты можешь купить брученные монеты по цене ниже рынка 📊\n\n"
     f"Реклама / сотрудничество: {MANAGER_USERNAME}"
 )
@@ -72,13 +64,13 @@ CONTRACT_TEXT = (
 )
 
 HELP_TEXT = (
-    "💡 Как оплачивать?\n\n"
+    "💡 <b>Как оплачивать?</b>\n\n"
     "1️⃣ Выберите нужный товар в каталоге или разделе бирж, укажите количество — бот выдаст готовую карточку заказа.\n\n"
-    "2️⃣ Как купить крипту на Xroket:\n"
-    "Перейдите на биржу Xroket и приобретите нужную сумму. "
+    "2️⃣ <b>Как купить крипту на Xroket:</b>\n"
+    "Перейдите на биржу <b>Xroket</b> и приобретите нужную сумму. "
     "®️ Верификация и 18 лет не обязательны, можно спокойно пользоваться без этого ®️\n"
     "После покупки создайте внутри биржи криптовалютный чек (ваучер) на сумму заказа.\n\n"
-    "3️⃣ Отправка чека:\n"
+    "3️⃣ <b>Отправка чека:</b>\n"
     "Перешлите карточку заказа вместе со ссылкой на созданный чек нашему менеджеру: " + MANAGER_USERNAME + "\n"
     "Менеджер просто активирует его в один клик, после чего сразу выдаст вам товар! 👨‍💻"
 )
@@ -121,24 +113,30 @@ def get_accounts_menu():
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
 
-# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА БЕЗ ПУСТОТЫ С НУЖНОЙ КАРТИНКОЙ ---
-async def show_page_with_img(callback: types.CallbackQuery, image_name: str, text: str, reply_markup: InlineKeyboardMarkup, parse_mode: str = None):
+# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО ---
+async def edit_or_send_photo(callback: types.CallbackQuery, photo_source: str, caption: str, reply_markup: InlineKeyboardMarkup, parse_mode: str = "HTML"):
+    if photo_source.startswith("http"):
+        try:
+            media = InputMediaPhoto(media=photo_source, caption=caption, parse_mode=parse_mode)
+            await callback.message.edit_media(media=media, reply_markup=reply_markup)
+            return
+        except Exception:
+            try:
+                await callback.message.delete()
+            except Exception:
+                pass
+            await callback.message.answer_photo(photo=photo_source, caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
+            return
+
     try:
-        await callback.message.delete()
+        media = InputMediaPhoto(media=FSInputFile(photo_source), caption=caption, parse_mode=parse_mode)
+        await callback.message.edit_media(media=media, reply_markup=reply_markup)
     except Exception:
-        pass
-    
-    try:
-        photo = FSInputFile(image_name)
-        await callback.message.answer_photo(photo=photo, caption=text, reply_markup=reply_markup, parse_mode=parse_mode)
-    except Exception as e:
-        logging.error(f"Не удалось отправить фото {image_name}: {e}")
-        await callback.message.answer(text=text, reply_markup=reply_markup, parse_mode=parse_mode)
-    
-    try:
-        await callback.answer()
-    except Exception:
-        pass
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+        await callback.message.answer_photo(photo=FSInputFile(photo_source), caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
 
 # --- ХЕНДЛЕРЫ ---
 
@@ -146,10 +144,10 @@ async def show_page_with_img(callback: types.CallbackQuery, image_name: str, tex
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     try:
-        photo = FSInputFile(IMG_MAIN)
-        await message.answer_photo(photo=photo, caption=WELCOME_TEXT, reply_markup=get_main_menu())
+        photo = FSInputFile("image19.jfif")
+        await message.answer_photo(photo=photo, caption=WELCOME_TEXT, reply_markup=get_main_menu(), parse_mode="HTML")
     except Exception:
-        await message.answer(WELCOME_TEXT, reply_markup=get_main_menu())
+        await message.answer(WELCOME_TEXT, reply_markup=get_main_menu(), parse_mode="HTML")
 
 @dp.message(Command("referral"))
 async def cmd_referral(message: types.Message, state: FSMContext):
@@ -164,16 +162,16 @@ async def cmd_referral(message: types.Message, state: FSMContext):
     ]
     
     ref_text = (
-        "ℹ️ Информация о реферальной системе 🧮💶\n\n"
-        "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить 5 любых бесплатных монет!\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
-        "📌 Условие: приведенный вами человек должен совершить покупку минимум 20 любых монет в нашем боте.\n\n"
-        f"🔗 Ваша индивидуальная реферальная ссылка:\n<a href='{ref_link}'>{ref_link}</a>\n\n"
+        "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
+        f"🔗 <b>Ваша индивидуальная реферальная ссылка:</b>\n<a href='{ref_link}'>{ref_link}</a>\n\n"
         "Для получения и подтверждения бонусов пишите напрямик: @StarsManagerr"
     )
     
     try:
-        await message.answer_photo(photo=FSInputFile(IMG_REFERRAL), caption=ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
+        await message.answer_photo(photo=FSInputFile("image19.jfif"), caption=ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
     except Exception:
         await message.answer(ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
@@ -182,34 +180,34 @@ async def cmd_help(message: types.Message, state: FSMContext):
     await state.clear()
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_to_main")]])
     try:
-        photo = FSInputFile(IMG_HELP)
-        await message.answer_photo(photo=photo, caption=HELP_TEXT, reply_markup=kb)
+        photo = FSInputFile("image19.jfif")
+        await message.answer_photo(photo=photo, caption=HELP_TEXT, reply_markup=kb, parse_mode="HTML")
     except Exception:
-        await message.answer(HELP_TEXT, reply_markup=kb)
+        await message.answer(HELP_TEXT, reply_markup=kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "help_info")
 async def show_help_callback(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]])
-    await show_page_with_img(callback, IMG_HELP, HELP_TEXT, kb)
+    await edit_or_send_photo(callback, "image19.jfif", HELP_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "back_main")
 @dp.callback_query(F.data == "back_to_main")
 async def back_to_main(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    await show_page_with_img(callback, IMG_MAIN, WELCOME_TEXT, get_main_menu())
+    await edit_or_send_photo(callback, "image19.jfif", WELCOME_TEXT, get_main_menu(), parse_mode="HTML")
 
 @dp.callback_query(F.data == "catalog")
 async def show_catalog(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     text = "Каталог цифровых товаров и монет. Выберите интересующую позицию:"
-    await show_page_with_img(callback, IMG_CATALOG, text, get_catalog_menu())
+    await edit_or_send_photo(callback, "image14.jfif", text, get_catalog_menu())
 
 @dp.callback_query(F.data == "section_accounts")
 async def show_accounts_section(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     text = "Аккаунты бирж:\nВыберите доступный вариант:"
-    await show_page_with_img(callback, IMG_CATALOG, text, get_accounts_menu())
+    await edit_or_send_photo(callback, "image14.jfif", text, get_accounts_menu())
 
 @dp.callback_query(F.data == "referral")
 async def show_referral_callback(callback: types.CallbackQuery, state: FSMContext):
@@ -219,31 +217,31 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
     ref_link = f"https://t.me/{bot_info.username}?start=ref_{user.id}"
     
     ref_text = (
-        "ℹ️ Информация о реферальной системе 🧮💶\n\n"
-        "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить 5 любых бесплатных монет!\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
-        "📌 Условие: приведенный вами человек должен совершить покупку минимум 20 любых монет в нашем боте.\n\n"
-        f"🔗 Ваша индивидуальная реферальная ссылка:\n<a href='{ref_link}'>{ref_link}</a>\n\n"
+        "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
+        f"🔗 <b>Ваша индивидуальная реферальная ссылка:</b>\n<a href='{ref_link}'>{ref_link}</a>\n\n"
         "Для получения и подтверждения бонусов пишите напрямик: @StarsManagerr"
     )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    keyboard = [
         [InlineKeyboardButton(text="📞 Написать менеджеру", url="https://t.me/StarsManagerr")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
-    ])
-    await show_page_with_img(callback, IMG_REFERRAL, ref_text, keyboard, parse_mode="HTML")
+    ]
+    await edit_or_send_photo(callback, "image19.jfif", ref_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data == "faq")
 async def show_faq(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     faq_text = (
-        "❓ Часто задаваемые вопросы (FAQ)\n\n"
+        "❓ <b>Часто задаваемые вопросы (FAQ)</b>\n\n"
         "Добро пожаловать в справочный центр StarsBiest! Здесь собрана вся ключевая база знаний о нашей платформе, активах, правилах безопасности и принципах работы реферальной программы.\n\n"
         "Мы постарались ответить на все самые популярные вопросы новичков и постоянных клиентов, чтобы вам было максимально комфортно.\n\n"
         "📖 Вы можете подробно <a href='https://1drv.ms/b/c/b68296d9a1b801f9/IQAIvZtAHTAXS6M4J9YeJC5dAQd6XAdgsk1l01p2t4pAaL4'>ознакомиться здесь</a> со всеми материалами в нашем официальном справочном PDF-файле.\n\n"
         "Если у вас останутся дополнительные вопросы, наша команда поддержки всегда на связи!"
     )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]])
-    await show_page_with_img(callback, IMG_HELP, faq_text, keyboard, parse_mode="HTML")
+    keyboard = [[InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]]
+    await edit_or_send_photo(callback, "image19.jfif", faq_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data.in_({"metis", "agave", "avto", "software"}))
 async def show_product(callback: types.CallbackQuery, state: FSMContext):
@@ -255,6 +253,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
             "📈 Цена монеты на бирже - 3147₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
         )
+        photo_file = "image16.jfif"
     elif callback.data == "agave":
         text = (
             "Agave Coin — это утилит токен для развития индустрии полезных культур.\n"
@@ -262,6 +261,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
             "📈 Цена монеты на бирже - 4237₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
         )
+        photo_file = "image17.jfif"
     elif callback.data == "avto":
         text = (
             "Avto Coin - агрегатор урожайного земледелия на Binance Smart Chain.\n"
@@ -269,6 +269,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
             "📈 Цена монеты на бирже - 1863₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
         )
+        photo_file = "image15.jfif"
     elif callback.data == "software":
         text = (
             "Персональный софт от команды Stars\n\n"
@@ -276,17 +277,23 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
             "Цена: 250$\n\n"
             f"👨‍💻 Менеджер: {MANAGER_USERNAME}"
         )
+        photo_file = "image19.jfif"
 
     buy_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Купить 🛒", callback_data=f"buy_{callback.data}")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="catalog")]
     ])
-    await show_page_with_img(callback, IMG_CATALOG, text, buy_kb)
+    await edit_or_send_photo(callback, photo_file, text, buy_kb)
 
 @dp.callback_query(F.data.in_({"atronix", "brexit"}))
 async def show_exchange_product(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    item_name = "Atronix" if callback.data == "atronix" else "BreXIT"
+    if callback.data == "atronix":
+        item_name = "Atronix"
+        photo_file = "image11.jfif"
+    else:
+        item_name = "BreXIT"
+        photo_file = "image12.jfif"
         
     text = (
         f"Цифровой аккаунт закрытой биржи {item_name} с пройденной верификацией.\n\n"
@@ -297,7 +304,7 @@ async def show_exchange_product(callback: types.CallbackQuery, state: FSMContext
         [InlineKeyboardButton(text="Купить 🛒", callback_data=f"buy_{callback.data}")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="section_accounts")]
     ])
-    await show_page_with_img(callback, IMG_CATALOG, text, buy_kb)
+    await edit_or_send_photo(callback, photo_file, text, buy_kb)
 
 @dp.callback_query(F.data.startswith("buy_"))
 async def process_buy_click(callback: types.CallbackQuery, state: FSMContext):
@@ -311,7 +318,7 @@ async def process_buy_click(callback: types.CallbackQuery, state: FSMContext):
     ])
     
     text = "Какое количество вы хотите заказать?\n\nВведите количество цифрами:"
-    await show_page_with_img(callback, IMG_CATALOG, text, back_kb)
+    await edit_or_send_photo(callback, "image14.jfif", text, back_kb)
 
 @dp.message(OrderState.waiting_for_quantity)
 async def process_quantity_input(message: types.Message, state: FSMContext):
@@ -345,7 +352,7 @@ async def process_quantity_input(message: types.Message, state: FSMContext):
     ])
     
     try:
-        photo = FSInputFile(IMG_CATALOG)
+        photo = FSInputFile("image14.jfif")
         await message.answer_photo(photo=photo, caption=order_card_text, reply_markup=finish_kb)
     except Exception:
         await message.answer(order_card_text, reply_markup=finish_kb)
@@ -357,7 +364,7 @@ async def show_guarantees(callback: types.CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="📄 Как оформляется договор?", callback_data="contract_info")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await show_page_with_img(callback, IMG_GUARANTEES, GUARANTEES_TEXT, kb)
+    await edit_or_send_photo(callback, "image10.jfif", GUARANTEES_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "contract_info")
 async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
@@ -365,7 +372,7 @@ async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="guarantees")]
     ])
-    await show_page_with_img(callback, IMG_GUARANTEES, CONTRACT_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image10.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "profile")
 async def show_profile(callback: types.CallbackQuery, state: FSMContext):
@@ -377,18 +384,18 @@ async def show_profile(callback: types.CallbackQuery, state: FSMContext):
     ref_link = f"https://t.me/{bot_info.username}?start={ref_code}"
     
     profile_text = (
-        "👤 Ваш профиль\n\n"
+        "👤 <b>Ваш профиль</b>\n\n"
         f"Username: {username}\n"
         f"ID: {user.id}\n"
         f"Реферальный код: {ref_code}\n\n"
-        f"🔗 Ваша реферальная ссылка:\n<a href='{ref_link}'>{ref_link}</a>"
+        f"🔗 <b>Ваша реферальная ссылка:</b>\n<a href='{ref_link}'>{ref_link}</a>"
     )
     back_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await show_page_with_img(callback, IMG_PROFILE, profile_text, back_kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image19.jfif", profile_text, back_kb, parse_mode="HTML")
 
-# --- ОСНОВНОЙ ЗАПУСК ---
+# --- ОСНОВНОЙ ЗАПУСК (БОТ + ВЕБ-СЕРВЕР) ---
 async def main():
     asyncio.create_task(start_web_server())
     print("Бот запущен и полностью готов к работе!")

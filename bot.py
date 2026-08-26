@@ -113,30 +113,16 @@ def get_accounts_menu():
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
 
-# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО ---
+# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО (БЕЗ УДАЛЕНИЙ) ---
 async def edit_or_send_photo(callback: types.CallbackQuery, photo_source: str, caption: str, reply_markup: InlineKeyboardMarkup, parse_mode: str = "HTML"):
-    if photo_source.startswith("http"):
-        try:
-            media = InputMediaPhoto(media=photo_source, caption=caption, parse_mode=parse_mode)
-            await callback.message.edit_media(media=media, reply_markup=reply_markup)
-            return
-        except Exception:
-            try:
-                await callback.message.delete()
-            except Exception:
-                pass
-            await callback.message.answer_photo(photo=photo_source, caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
-            return
-
     try:
         media = InputMediaPhoto(media=FSInputFile(photo_source), caption=caption, parse_mode=parse_mode)
         await callback.message.edit_media(media=media, reply_markup=reply_markup)
     except Exception:
         try:
-            await callback.message.delete()
+            await callback.message.answer_photo(photo=FSInputFile(photo_source), caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
         except Exception:
             pass
-        await callback.message.answer_photo(photo=FSInputFile(photo_source), caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
 
 # --- ХЕНДЛЕРЫ ---
 
@@ -162,7 +148,7 @@ async def cmd_referral(message: types.Message, state: FSMContext):
     ]
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
@@ -217,7 +203,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
     ref_link = f"https://t.me/{bot_info.username}?start=ref_{user.id}"
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
@@ -228,6 +214,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
         [InlineKeyboardButton(text="📞 Написать менеджеру", url="https://t.me/StarsManagerr")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ]
+    # ПРАВИЛЬНАЯ КАРТИНКА ДЛЯ РЕФЕРАЛОВ: image13.jfif
     await edit_or_send_photo(callback, "image13.jfif", ref_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data == "faq")
@@ -403,6 +390,7 @@ async def show_profile(callback: types.CallbackQuery, state: FSMContext):
     back_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
+    # ПРАВИЛЬНАЯ КАРТИНКА ДЛЯ ПРОФИЛЯ: image9.jfif
     await edit_or_send_photo(callback, "image9.jfif", profile_text, back_kb, parse_mode="HTML")
 
 # --- ОСНОВНОЙ ЗАПУСК (БОТ + ВЕБ-СЕРВЕР) ---

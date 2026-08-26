@@ -113,13 +113,14 @@ def get_accounts_menu():
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
 
-# --- ОТПРАВКА БЕЗ УДАЛЕНИЯ ИСТОРИИ СООБЩЕНИЙ ---
+# --- ОТПРАВКА НОВЫХ СООБЩЕНИЙ БЕЗ УДАЛЕНИЯ ИСТОРИИ ---
 async def show_new_screen(callback: types.CallbackQuery, photo_path: str, text: str, reply_markup: InlineKeyboardMarkup):
     try:
         photo = FSInputFile(photo_path)
         await callback.message.answer_photo(photo=photo, caption=text, reply_markup=reply_markup, parse_mode="HTML")
     except Exception:
         await callback.message.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+    await callback.answer() # Убираем часики с кнопки
 
 # --- ХЕНДЛЕРЫ ---
 
@@ -145,7 +146,7 @@ async def cmd_referral(message: types.Message, state: FSMContext):
     ]
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
@@ -200,7 +201,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
     ref_link = f"https://t.me/{bot_info.username}?start=ref_{user.id}"
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"

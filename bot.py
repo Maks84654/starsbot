@@ -248,7 +248,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     if callback.data == "metis":
         text = (
-            "Metis Coin – оптимистичная монета обеспечивающая безопасность и масштабность протокола.\n"
+            "Metis Coin – оптимистичная монета обеспечивающая безопасность и масштабность протокола.Из-за низкого уровня защиты, с помощью качественного софта STARS BIEST , можно применятьмонеты пользователей без их ведома для личных целей.\n"
             "📉 Цена одной BRUT монеты - 1450₽\n"
             "📈 Цена монеты на бирже - 3147₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -256,7 +256,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image16.jfif"
     elif callback.data == "agave":
         text = (
-            "Agave Coin — это утилит токен для развития индустрии полезных культур.\n"
+            "Agave Coin — это утилит токен для развития индустрии полезных культур .В нем мы обнаружили лазейку в технической части монеты , что позволяет тактически брутить валюту пользователей.\n"
             "📉 Цена одной BRUT монеты - 1830₽\n"
             "📈 Цена монеты на бирже - 4237₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -264,7 +264,7 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image17.jfif"
     elif callback.data == "avto":
         text = (
-            "Avto Coin - агрегатор урожайного земледелия на Binance Smart Chain.\n"
+            "Avto Coin - агрегатор урожайного земледелия на Binance Smart Chain.Разработчики не сильно заморочились над защитой и поэтому мы нашли способ брутить монеты в средних обЪъемах.\n"
             "📉 Цена одной BRUT монеты - 1055₽\n"
             "📈 Цена монеты на бирже - 1863₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -272,8 +272,8 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image15.jfif"
     elif callback.data == "software":
         text = (
-            "Персональный софт от команды Stars\n\n"
-            "Преимущества софта:\n- Скорость 🚀\n- Валидность 🌟\n- Легкость ✅\n\n"
+            "Персональный софт от команды Stars позволяющий тактически брутить токены пользователей\n\n"
+            "Преимущества нашего авторского софта:\n- Скорость 🚀\n- Валидность 🌟\n- Легкость ✅\n\n"
             "Цена: 250$\n\n"
             f"👨‍💻 Менеджер: {MANAGER_USERNAME}"
         )
@@ -364,7 +364,7 @@ async def show_guarantees(callback: types.CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="📄 Как оформляется договор?", callback_data="contract_info")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await edit_or_send_photo(callback, "image10.jfif", GUARANTEES_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image19.jfif", GUARANTEES_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "contract_info")
 async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
@@ -372,7 +372,7 @@ async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="guarantees")]
     ])
-    await edit_or_send_photo(callback, "image10.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image19.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "profile")
 async def show_profile(callback: types.CallbackQuery, state: FSMContext):

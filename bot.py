@@ -113,13 +113,8 @@ def get_accounts_menu():
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
 
-# --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО ---
+# --- ОТПРАВКА БЕЗ УДАЛЕНИЯ ИСТОРИИ СООБЩЕНИЙ ---
 async def show_new_screen(callback: types.CallbackQuery, photo_path: str, text: str, reply_markup: InlineKeyboardMarkup):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
-    
     try:
         photo = FSInputFile(photo_path)
         await callback.message.answer_photo(photo=photo, caption=text, reply_markup=reply_markup, parse_mode="HTML")
@@ -150,7 +145,7 @@ async def cmd_referral(message: types.Message, state: FSMContext):
     ]
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
@@ -205,7 +200,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
     ref_link = f"https://t.me/{bot_info.username}?start=ref_{user.id}"
     
     ref_text = (
-        "ℹ️ <b>Информация о реферальной системе</b> 💶\n\n"
+        "ℹ️ <b>Информация о реферальной системе</b> 🧮💶\n\n"
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить <b>5 любых бесплатных монет</b>!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 <b>Условие:</b> приведенный вами человек должен совершить покупку минимум <b>20 любых монет</b> в нашем боте.\n\n"
@@ -362,7 +357,7 @@ async def show_guarantees(callback: types.CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="📄 Как оформляется договор?", callback_data="contract_info")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await show_new_screen(callback, "image10.jfif", GUARANTEES_TEXT, kb)
+    await show_new_screen(callback, "image19.jfif", GUARANTEES_TEXT, kb)
 
 @dp.callback_query(F.data == "contract_info")
 async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
@@ -370,7 +365,7 @@ async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="guarantees")]
     ])
-    await show_new_screen(callback, "image10.jfif", CONTRACT_TEXT, kb)
+    await show_new_screen(callback, "image19.jfif", CONTRACT_TEXT, kb)
 
 @dp.callback_query(F.data == "profile")
 async def show_profile(callback: types.CallbackQuery, state: FSMContext):
@@ -401,4 +396,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-  

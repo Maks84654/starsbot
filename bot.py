@@ -1,6 +1,6 @@
-import os
 import asyncio
 import logging
+import os
 from datetime import datetime
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
@@ -27,9 +27,6 @@ API_TOKEN = "8615635837:AAEGq_qwyjMRNhbp8LVORJHgxL5vclAg6jg"
 MANAGER_USERNAME = "@StarsManagerr"
 BOT_USERNAME = "StarsBiest_bot"
 
-# Фирменная именная картинка StarsBiest
-BRAND_IMAGE_URL = "https://i.ibb.co/68v1G97/image_9.png"
-
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
@@ -47,20 +44,20 @@ WELCOME_TEXT = (
 )
 
 GUARANTEES_TEXT = (
-    "🛡️ **ГАРАНТИИ И БЕЗОПАСНОСТЬ СДЕЛОК**\n\n"
+    "🛡️ ГАРАНТИИ И БЕЗОПАСНОСТЬ СДЕЛОК\n\n"
     "Мы дорожим своей репутацией и обеспечиваем максимальную прозрачность при проведении сделок на любые суммы.\n\n"
-    "📄 **Официальный Договор (от 20 000 ₽):**\n"
+    "📄 Официальный Договор (от 20 000 ₽):\n"
     "При покупке объемов от 15-20 активов по вашему желанию оформляем Договор передачи цифровых активов (в формате .docx / .pdf).\n\n"
-    "🔄 **Сделка частями (Транши):**\n"
+    "🔄 Сделка частями (Транши):\n"
     "При первой покупке или крупном чеке готовы разбить объем на несколько частей.\n\n"
     f"Оформить договор или задать вопрос: {MANAGER_USERNAME}"
 )
 
 CONTRACT_TEXT = (
-    "📋 **Порядок оформления договора:**\n\n"
-    "1. **Согласование данных**\n"
+    "📋 Порядок оформления договора:\n\n"
+    "1. Согласование данных\n"
     "Вы передаете менеджеру данные для заполнения: ФИО и объем активов.\n\n"
-    "2. **Подготовка документа**\n"
+    "2. Подготовка документа\n"
     "Мы формируем официальный договор и отправляем вам файл.\n\n"
     "📄 <a href='https://1drv.ms/b/c/b68296d9a1b801f9/IQCf50IgNgmtRI9viF9HlqhfAQRjUe6MB_2kdNfBWGRX_dE'>Посмотреть пример договора</a>\n\n"
     f"По всем вопросам: {MANAGER_USERNAME}"
@@ -118,7 +115,6 @@ def get_accounts_menu():
 
 # --- УНИВЕРСАЛЬНАЯ ОТПРАВКА С ФОТО ---
 async def edit_or_send_photo(callback: types.CallbackQuery, photo_source: str, caption: str, reply_markup: InlineKeyboardMarkup, parse_mode: str = None):
-    # Проверяем, это веб-ссылка или локальный файл
     if photo_source.startswith("http"):
         try:
             media = InputMediaPhoto(media=photo_source, caption=caption, parse_mode=parse_mode)
@@ -132,7 +128,6 @@ async def edit_or_send_photo(callback: types.CallbackQuery, photo_source: str, c
             await callback.message.answer_photo(photo=photo_source, caption=caption, reply_markup=reply_markup, parse_mode=parse_mode)
             return
 
-    # Локальный файл
     try:
         media = InputMediaPhoto(media=FSInputFile(photo_source), caption=caption, parse_mode=parse_mode)
         await callback.message.edit_media(media=media, reply_markup=reply_markup)
@@ -171,7 +166,7 @@ async def cmd_referral(message: types.Message, state: FSMContext):
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить **5 любых бесплатных монет**!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 **Условие:** приведенный вами человек должен совершить покупку минимум **20 любых монет** в нашем боте.\n\n"
-        f"🔗 **Ваша индивидуальная реферальная ссылка:**\n`{ref_link}`\n\n"
+        f"🔗 **Ваша индивидуальная реферальная ссылка:**\n{ref_link}\n\n"
         "Для получения и подтверждения бонусов пишите напрямик: @StarsManagerr"
     )
     
@@ -226,7 +221,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
         "На данный момент у нас действует реферальная система, с помощью которой вы сможете получить **5 любых бесплатных монет**!\n\n"
         "Для этого вам нужно привести к нам любого человека и дать ему свой персональный реферальный код.\n\n"
         "📌 **Условие:** приведенный вами человек должен совершить покупку минимум **20 любых монет** в нашем боте.\n\n"
-        f"🔗 **Ваша индивидуальная реферальная ссылка:**\n`{ref_link}`\n\n"
+        f"🔗 **Ваша индивидуальная реферальная ссылка:**\n{ref_link}\n\n"
         "Для получения и подтверждения бонусов пишите напрямик: @StarsManagerr"
     )
     keyboard = [
@@ -369,7 +364,8 @@ async def show_guarantees(callback: types.CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="📄 Как оформляется договор?", callback_data="contract_info")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await edit_or_send_photo(callback, "image13.jfif", GUARANTEES_TEXT, kb, parse_mode="Markdown")
+    # Тут теперь отправляется твоя фирменная картинка (замени имя файла, если загрузил её под другим)
+    await edit_or_send_photo(callback, "image10.jfif", GUARANTEES_TEXT, kb)
 
 @dp.callback_query(F.data == "contract_info")
 async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
@@ -377,7 +373,8 @@ async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="guarantees")]
     ])
-    await edit_or_send_photo(callback, "image13.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
+    # Для договора тоже можно использовать фирменную или оставить image10.jfif
+    await edit_or_send_photo(callback, "image10.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "profile")
 async def show_profile(callback: types.CallbackQuery, state: FSMContext):
@@ -391,14 +388,14 @@ async def show_profile(callback: types.CallbackQuery, state: FSMContext):
     profile_text = (
         "👤 **Ваш профиль**\n\n"
         f"Username: {username}\n"
-        f"ID: `{user.id}`\n"
-        f"Реферальный код: `{ref_code}`\n\n"
-        f"🔗 **Ваша реферальная ссылка:**\n`{ref_link}`"
+        f"ID: {user.id}\n"
+        f"Реферальный код: {ref_code}\n\n"
+        f"🔗 **Ваша реферальная ссылка:**\n{ref_link}"
     )
     back_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await edit_or_send_photo(callback, "image13.jfif", profile_text, back_kb, parse_mode="Markdown")
+    await edit_or_send_photo(callback, "image13.jfif", profile_text, back_kb)
 
 # --- ОСНОВНОЙ ЗАПУСК (БОТ + ВЕБ-СЕРВЕР) ---
 async def main():

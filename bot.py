@@ -171,7 +171,7 @@ async def cmd_referral(message: types.Message, state: FSMContext):
     )
     
     try:
-        await message.answer_photo(photo=FSInputFile("image19.jfif"), caption=ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
+        await message.answer_photo(photo=FSInputFile("image13.jfif"), caption=ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
     except Exception:
         await message.answer(ref_text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
@@ -180,7 +180,7 @@ async def cmd_help(message: types.Message, state: FSMContext):
     await state.clear()
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Главное меню", callback_data="back_to_main")]])
     try:
-        photo = FSInputFile("image19.jfif")
+        photo = FSInputFile("image14.jfif")
         await message.answer_photo(photo=photo, caption=HELP_TEXT, reply_markup=kb, parse_mode="HTML")
     except Exception:
         await message.answer(HELP_TEXT, reply_markup=kb, parse_mode="HTML")
@@ -189,7 +189,7 @@ async def cmd_help(message: types.Message, state: FSMContext):
 async def show_help_callback(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]])
-    await edit_or_send_photo(callback, "image19.jfif", HELP_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image14.jfif", HELP_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "back_main")
 @dp.callback_query(F.data == "back_to_main")
@@ -228,7 +228,7 @@ async def show_referral_callback(callback: types.CallbackQuery, state: FSMContex
         [InlineKeyboardButton(text="📞 Написать менеджеру", url="https://t.me/StarsManagerr")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ]
-    await edit_or_send_photo(callback, "image19.jfif", ref_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
+    await edit_or_send_photo(callback, "image13.jfif", ref_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data == "faq")
 async def show_faq(callback: types.CallbackQuery, state: FSMContext):
@@ -241,14 +241,15 @@ async def show_faq(callback: types.CallbackQuery, state: FSMContext):
         "Если у вас останутся дополнительные вопросы, наша команда поддержки всегда на связи!"
     )
     keyboard = [[InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]]
-    await edit_or_send_photo(callback, "image19.jfif", faq_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
+    await edit_or_send_photo(callback, "image14.jfif", faq_text, InlineKeyboardMarkup(inline_keyboard=keyboard), parse_mode="HTML")
 
 @dp.callback_query(F.data.in_({"metis", "agave", "avto", "software"}))
 async def show_product(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
     if callback.data == "metis":
         text = (
-            "Metis Coin – оптимистичная монета обеспечивающая безопасность и масштабность протокола.Из-за низкого уровня защиты, с помощью качественного софта STARS BIEST , можно применятьмонеты пользователей без их ведома для личных целей.\n"
+            "Metis Coin – оптимистичная монета обеспечивающая безопасность и масштабность протокола.\n"
+            "Из-за низкого уровня защиты, с помощью качественного софта BRUT FORCE, можно применять монеты пользователей без их ведома для личных целей.\n\n"
             "📉 Цена одной BRUT монеты - 1450₽\n"
             "📈 Цена монеты на бирже - 3147₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -256,7 +257,8 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image16.jfif"
     elif callback.data == "agave":
         text = (
-            "Agave Coin — это утилит токен для развития индустрии полезных культур .В нем мы обнаружили лазейку в технической части монеты , что позволяет тактически брутить валюту пользователей.\n"
+            "Agave Coin — это утилит токен, созданный для упрощения механизма участия инвесторов в развитии индустрии полезных культур.\n"
+            "В нем мы обнаружили лазейку в технической части монеты, что позволяет тактически брутить валюту пользователей.\n\n"
             "📉 Цена одной BRUT монеты - 1830₽\n"
             "📈 Цена монеты на бирже - 4237₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -264,7 +266,8 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image17.jfif"
     elif callback.data == "avto":
         text = (
-            "Avto Coin - агрегатор урожайного земледелия на Binance Smart Chain.Разработчики не сильно заморочились над защитой и поэтому мы нашли способ брутить монеты в средних обЪъемах.\n"
+            "Avto Coin - это агрегатор урожайного земледелия, работающий как на Binance Smart Chain.\n"
+            "Разработчики не сильно заморочились над защитой, поэтому мы нашли способ брутить монеты в средних обьемах.\n\n"
             "📉 Цена одной BRUT монеты - 1055₽\n"
             "📈 Цена монеты на бирже - 1863₽\n\n"
             f"Для заказа, напишите менеджеру : {MANAGER_USERNAME}"
@@ -272,9 +275,16 @@ async def show_product(callback: types.CallbackQuery, state: FSMContext):
         photo_file = "image15.jfif"
     elif callback.data == "software":
         text = (
-            "Персональный софт от команды Stars позволяющий тактически брутить токены пользователей\n\n"
-            "Преимущества нашего авторского софта:\n- Скорость 🚀\n- Валидность 🌟\n- Легкость ✅\n\n"
+            "Персональный софт от команды ✨Stars️\n\n"
+            "С нашим софтом вы лично можете заниматься Брутом монет.\n\n"
+            "Преимущества софта:\n"
+            "- Скорость🚀\n"
+            "- Валидность🌟\n"
+            "- Легкость✅\n"
+            "- Гарантия и полное кураторство🤝\n"
+            "- Живая встреча г.Москва по вопросам📱\n\n"
             "Цена: 250$\n\n"
+            "📩Для приобретения пишите менеджеру!\n"
             f"👨‍💻 Менеджер: {MANAGER_USERNAME}"
         )
         photo_file = "image19.jfif"
@@ -364,7 +374,7 @@ async def show_guarantees(callback: types.CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="📄 Как оформляется договор?", callback_data="contract_info")],
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await edit_or_send_photo(callback, "image19.jfif", GUARANTEES_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image10.jfif", GUARANTEES_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "contract_info")
 async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
@@ -372,7 +382,7 @@ async def show_contract_info(callback: types.CallbackQuery, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="guarantees")]
     ])
-    await edit_or_send_photo(callback, "image19.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image10.jfif", CONTRACT_TEXT, kb, parse_mode="HTML")
 
 @dp.callback_query(F.data == "profile")
 async def show_profile(callback: types.CallbackQuery, state: FSMContext):
@@ -393,7 +403,7 @@ async def show_profile(callback: types.CallbackQuery, state: FSMContext):
     back_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_main")]
     ])
-    await edit_or_send_photo(callback, "image19.jfif", profile_text, back_kb, parse_mode="HTML")
+    await edit_or_send_photo(callback, "image9.jfif", profile_text, back_kb, parse_mode="HTML")
 
 # --- ОСНОВНОЙ ЗАПУСК (БОТ + ВЕБ-СЕРВЕР) ---
 async def main():

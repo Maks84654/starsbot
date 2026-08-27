@@ -38,7 +38,7 @@ class OrderState(StatesGroup):
 
 # --- ТЕКСТЫ И ИНСТРУКЦИИ ---
 WELCOME_TEXT = (
-    "✨ <b>Добро пожаловать в StarsBiest!</b> ✨\n\n"
+    "✨<b>Добро пожаловать в StarsBiest!</b> ✨\n\n"
     "Бот, в котором ты можешь купить брученные монеты по цене ниже рынка 📊\n\n"
     f"Реклама / сотрудничество: {MANAGER_USERNAME}"
 )
